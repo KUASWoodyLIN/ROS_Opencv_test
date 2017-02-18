@@ -17,9 +17,8 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
         // Get the msg image
         cv::Mat InImage;
         InImage = cv_bridge::toCvShare(msg,"bgr8" )->image;
-//        InImage=cv_bridge::cvtColorForDisplay(cv_bridge::toCvShare(msg,"bgr8"))->imag$
         cv::imshow("view", InImage);
-//        cv::waitKey(0);
+        cv::waitKey(100);
     }
     catch (cv_bridge::Exception& e)
     {
@@ -32,13 +31,11 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "image_listener");
     ros::NodeHandle nh;
     cv::namedWindow("view",CV_WINDOW_NORMAL);
-    cv::startWindowThread();
     lastTime = ros::Time::now();
     image_transport::ImageTransport it(nh);
-    sub = it.subscribe("camera/image", 1, imageCallback);
-   // sub = it.subscribe("camera/image", 1, imageCallback,ros::VoidPtr(),image_transpor$
+//    sub = it.subscribe("/usb_cam/image_raw", 1, imageCallback);
+    sub = it.subscribe("usb_cam/image_raw", 1, imageCallback,ros::VoidPtr(),image_transport::TransportHints("compressed"));
     ros::spin();
     cv::destroyWindow("view");
 }
-
 
