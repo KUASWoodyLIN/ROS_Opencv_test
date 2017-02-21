@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(Camshift)
+project(faceshow)
 
 #set(CMAKE_PREFIX_PATH "/usr/local/lib")
 
@@ -31,10 +31,10 @@ catkin_package(
 ###########
 
 add_executable(${PROJECT_NAME}
-  src/Camshift.cpp
+  src/faceshow.cpp
 )
 #
 #
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${GTK2_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME})
 

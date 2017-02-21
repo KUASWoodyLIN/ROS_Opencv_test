@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(Camshift)
+project(Camshift_cam)
 
 #set(CMAKE_PREFIX_PATH "/usr/local/lib")
 
@@ -31,7 +31,7 @@ catkin_package(
 ###########
 
 add_executable(${PROJECT_NAME}
-  src/Camshift.cpp
+  src/Camshift_cam.cpp
 )
 #
 #

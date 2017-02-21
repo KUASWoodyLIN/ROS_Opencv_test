@@ -30,7 +30,7 @@ int main(int argc, char **argv)
 {
     ros::init(argc, argv, "image_listener");
     ros::NodeHandle nh;
-    cv::namedWindow("view",CV_WINDOW_NORMAL);
+//    cv::namedWindow("view",CV_WINDOW_NORMAL);
     lastTime = ros::Time::now();
     image_transport::ImageTransport it(nh);
 //    sub = it.subscribe("/usb_cam/image_raw", 1, imageCallback);
