@@ -4,6 +4,7 @@
 #include <mavros_msgs/SetMode.h>
 #include <mavros_msgs/OverrideRCIn.h>
 #include <mavros_msgs/State.h>
+#include <sensor_msgs/NavSatFix.h>
 
 //OPENCV
 #include <opencv2/core/core.hpp>
@@ -22,6 +23,7 @@ using namespace std;
 //函數聲明
 void found_ball(void);
 void mavrosStateCb(const mavros_msgs::StateConstPtr &msg);
+void mavrosglobal(const sensor_msgs::NavSatFixConstPtr &msg);
 
 // >>>>> Color to be tracked
 #define MIN_H_BLUE 200	//200
@@ -31,6 +33,9 @@ void mavrosStateCb(const mavros_msgs::StateConstPtr &msg);
 #define MINRC   1100
 #define BASERC  1500
 #define MAXRC   1900
+
+// Subscriber to global
+ros::Subscriber mavros_global_sub;
 
 // Subscriber to flight mode
 ros::Subscriber mavros_state_sub;
@@ -49,10 +54,13 @@ float ImageX = 320 , ImageY = 240 ;
 
 float BallX, BallY; // Ball center
 // Error between Image and Mark
-float ErX = 0.0;
-float ErY = 0.0;
+float ErX = 0.0 ,ErY = 0.0;
 
+//Throttle direction
 double Roll, Pitch;
+
+//Global position message
+float latitude = 0 ,longitude = 0 ,altitude = 0 ;
 
 // Flight mode
 std::string mode;
@@ -66,6 +74,7 @@ int main(int argc, char **argv)
     ros::NodeHandle nh;
     lastTime = ros::Time::now();
     mavros_state_sub = nh.subscribe("/mavros/state", 1, mavrosStateCb);
+    mavros_global_sub = nh.subscribe("global_position/global", 1, mavrosglobal);
     rc_pub = nh.advertise<mavros_msgs::OverrideRCIn>("/mavros/rc/override", 10);
     mode_ser = nh.serviceClient<mavros_msgs::SetMode>("/mavros/set_mode");
     mavros_msgs::SetMode srv_setMode;
@@ -164,16 +173,13 @@ void found_ball(void)
             kf.transitionMatrix.at<float>(2) = dT;
             kf.transitionMatrix.at<float>(9) = dT;
             // <<<< Matrix A
-StateCount++;
-if(StateCount >= 30)
-{
-            cout << "dT:" << endl << dT << endl;
+
+            //cout << "dT:" << endl << dT << endl;
 
             state = kf.predict();
 	
-            cout << "State post:" << endl << state << endl;
-StateCount = 0;
-}
+            //cout << "State post:" << endl << state << endl;
+
             cv::Rect predRect;
             predRect.width = state.at<float>(4);
             predRect.height = state.at<float>(5);
@@ -201,11 +207,6 @@ StateCount = 0;
         // >>>>> Color Thresholding
         // Note: change parameters for different colors
         cv::Mat rangeRes = cv::Mat::zeros(frame.size(), CV_8UC1);
-        //cv::inRange(frmHsv, cv::Scalar(18, 100, 80),
-        //            cv::Scalar(35, 240, 255), rangeRes);
-        //cv::inRange(frmHsv, cv::Scalar(18, 200, 170),
-        //            cv::Scalar(35, 240, 240), rangeRes);
-
         cv::inRange(frmHsv, cv::Scalar(MIN_H_BLUE / 2, 100, 80),
                    cv::Scalar(MAX_H_BLUE / 2, 255, 255), rangeRes);
 
@@ -383,9 +384,14 @@ BallCount = 0;
         	msg.channels[7] = 0;
 
         	rc_pub.publish(msg);
+		cout << "Global position" << endl << endl;
+        	cout << "latitude:" << latitude << endl;
+        	cout << "longitude:" << longitude << endl;
+        	cout << "altitude:" << altitude << endl << endl;
+		cout << "Throttle direction" << endl << endl;
         	cout << "Pitch:" << Pitch << endl;
         	cout << "Roll:" << Roll << endl;
-        	cout << "Measure matrix:" << endl << meas << endl;
+        	//cout << "Measure matrix:" << endl << meas << endl;
 		FoundCount = 0;
 	    }
         }
@@ -411,6 +417,15 @@ void mavrosStateCb(const mavros_msgs::StateConstPtr &msg)
     guided = msg->guided==128;
     armed = msg->armed==128;
 }
+
+void mavrosglobal(const sensor_msgs::NavSatFixConstPtr &msg)
+{
+    longitude = msg->longitude;
+    latitude = msg->latitude;
+    altitude = msg->altitude;
+}
+
+
 
 
 
