@@ -469,4 +469,7 @@ void mavrosglobal(const sensor_msgs::NavSatFixConstPtr &msg)
     altitude = msg->altitude;
     //ROS_INFO("Heard lobal: [%f] [%f] [%f]", longitude, latitude, altitude);
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> f833e14f1eca30674949ac7072a71f1b5fc7906f
