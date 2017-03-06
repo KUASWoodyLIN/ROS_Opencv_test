@@ -18,7 +18,7 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
         cv::Mat InImage;
         InImage = cv_bridge::toCvShare(msg,"bgr8" )->image;
         cv::imshow("view", InImage);
-        cv::waitKey(100);
+        cv::waitKey(35);
     }
     catch (cv_bridge::Exception& e)
     {
@@ -33,8 +33,8 @@ int main(int argc, char **argv)
 //    cv::namedWindow("view",CV_WINDOW_NORMAL);
     lastTime = ros::Time::now();
     image_transport::ImageTransport it(nh);
-//    sub = it.subscribe("/usb_cam/image_raw", 1, imageCallback);
-    sub = it.subscribe("usb_cam/image_raw", 1, imageCallback,ros::VoidPtr(),image_transport::TransportHints("compressed"));
+//    sub = it.subscribe("/camera/image", 1, imageCallback);
+    sub = it.subscribe("/camera/image", 1, imageCallback,ros::VoidPtr(),image_transport::TransportHints("compressed"));
     ros::spin();
     cv::destroyWindow("view");
 }
