@@ -22,7 +22,7 @@
 using namespace std;
 
 //函數聲明
-void imageCallback(const sensor_msgs::ImageConstPtr& msg);
+void ball_tracking(void);
 
 // >>>>> Color to be tracked
 #define MIN_H_BLUE 200	//200
@@ -34,8 +34,8 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg);
 #define MIN_H_RED 0
 #define MAX_H_RED 30
 
-// Subscriber to bottom camera
-image_transport::Subscriber sub;
+// Publisher to bottom camera
+image_transport::Publisher pub;
 
 // Distance publisher
 ros::Publisher Distance_pub;
@@ -61,72 +61,93 @@ int main(int argc, char **argv)
     ros::NodeHandle nh;
     ros::NodeHandle privateHandle("~");
     image_transport::ImageTransport it(nh);
-    sub = it.subscribe("image", 1 , imageCallback);
+    image_transport::Publisher pub = it.advertise("ball_tracking/image", 1);
     Distance_pub = nh.advertise<found_ball::Ballinfo>("/ball/info",1);
     //Get param
     privateHandle.getParam("ball_color", ball_color );
-    ros::spin();
+
+    ball_tracking();
 }
 
-void imageCallback(const sensor_msgs::ImageConstPtr& msg)
+void ball_tracking(void)
 {
-    try
+
+    // Messages
+    found_ball::Ballinfo distance_msg;
+
+    // >>>> Kalman Filter
+    int stateSize = 6;
+    int measSize = 4;
+    int contrSize = 0;
+
+    unsigned int type = CV_32F;
+    cv::KalmanFilter kf(stateSize, measSize, contrSize, type);
+
+    cv::Mat state(stateSize, 1, type);  // [x,y,v_x,v_y,w,h]
+    cv::Mat meas(measSize, 1, type);    // [z_x,z_y,z_w,z_h]
+
+    //cv::Mat procNoise(stateSize, 1, type)
+    // [E_x,E_y,E_v_x,E_v_y,E_w,E_h]
+
+    // Transition State Matrix A
+    // Note: set dT at each processing step!
+    // [ 1 0 dT 0  0 0 ]
+    // [ 0 1 0  dT 0 0 ]
+    // [ 0 0 1  0  0 0 ]
+    // [ 0 0 0  1  0 0 ]
+    // [ 0 0 0  0  1 0 ]
+    // [ 0 0 0  0  0 1 ]
+    cv::setIdentity(kf.transitionMatrix);
+
+    // Measure Matrix H
+    // [ 1 0 0 0 0 0 ]
+    // [ 0 1 0 0 0 0 ]
+    // [ 0 0 0 0 1 0 ]
+    // [ 0 0 0 0 0 1 ]
+    kf.measurementMatrix = cv::Mat::zeros(measSize, stateSize, type);
+    kf.measurementMatrix.at<float>(0) = 1.0f;
+    kf.measurementMatrix.at<float>(7) = 1.0f;
+    kf.measurementMatrix.at<float>(16) = 1.0f;
+    kf.measurementMatrix.at<float>(23) = 1.0f;
+
+    // Process Noise Covariance Matrix Q
+    // [ Ex   0   0     0     0    0  ]
+    // [ 0    Ey  0     0     0    0  ]
+    // [ 0    0   Ev_x  0     0    0  ]
+    // [ 0    0   0     Ev_y  0    0  ]
+    // [ 0    0   0     0     Ew   0  ]
+    // [ 0    0   0     0     0    Eh ]
+    //cv::setIdentity(kf.processNoiseCov, cv::Scalar(1e-2));
+    kf.processNoiseCov.at<float>(0) = 1e-2;
+    kf.processNoiseCov.at<float>(7) = 1e-2;
+    kf.processNoiseCov.at<float>(14) = 5.0f;
+    kf.processNoiseCov.at<float>(21) = 5.0f;
+    kf.processNoiseCov.at<float>(28) = 1e-2;
+    kf.processNoiseCov.at<float>(35) = 1e-2;
+    // Measures Noise Covariance Matrix R
+    cv::setIdentity(kf.measurementNoiseCov, cv::Scalar(1e-1));
+    // <<<< Kalman Filter
+
+    // Camera Capture
+    cv::VideoCapture cap(0);
+
+    // >>>>> Camera Settings
+    if (!cap.isOpened())
     {
-      	// Messages
-        found_ball::Ballinfo distance_msg;
+        cout << "Webcam not connected.\n" << "Please verify\n";
+        //return EXIT_FAILURE;
+    }
+    // <<<<< Camera Settings
 
-        // >>>> Kalman Filter
-        int stateSize = 6;
-        int measSize = 4;
-        int contrSize = 0;
+    // Camera frame
+    cv::Mat frame;
+    cv::Mat res;
 
-        unsigned int type = CV_32F;
-        cv::KalmanFilter kf(stateSize, measSize, contrSize, type);
+    // Pub Image
+    sensor_msgs::ImagePtr image_msg;
 
-        cv::Mat state(stateSize, 1, type);  // [x,y,v_x,v_y,w,h]
-        cv::Mat meas(measSize, 1, type);    // [z_x,z_y,z_w,z_h]
-
-        //cv::Mat procNoise(stateSize, 1, type)
-        // [E_x,E_y,E_v_x,E_v_y,E_w,E_h]
-
-        // Transition State Matrix A
-        // Note: set dT at each processing step!
-        // [ 1 0 dT 0  0 0 ]
-        // [ 0 1 0  dT 0 0 ]
-        // [ 0 0 1  0  0 0 ]
-        // [ 0 0 0  1  0 0 ]
-        // [ 0 0 0  0  1 0 ]
-        // [ 0 0 0  0  0 1 ]
-        cv::setIdentity(kf.transitionMatrix);
-
-        // Measure Matrix H
-        // [ 1 0 0 0 0 0 ]
-        // [ 0 1 0 0 0 0 ]
-        // [ 0 0 0 0 1 0 ]
-        // [ 0 0 0 0 0 1 ]
-        kf.measurementMatrix = cv::Mat::zeros(measSize, stateSize, type);
-        kf.measurementMatrix.at<float>(0) = 1.0f;
-        kf.measurementMatrix.at<float>(7) = 1.0f;
-        kf.measurementMatrix.at<float>(16) = 1.0f;
-        kf.measurementMatrix.at<float>(23) = 1.0f;
-
-        // Process Noise Covariance Matrix Q
-        // [ Ex   0   0     0     0    0  ]
-        // [ 0    Ey  0     0     0    0  ]
-        // [ 0    0   Ev_x  0     0    0  ]
-        // [ 0    0   0     Ev_y  0    0  ]
-        // [ 0    0   0     0     Ew   0  ]
-        // [ 0    0   0     0     0    Eh ]
-        //cv::setIdentity(kf.processNoiseCov, cv::Scalar(1e-2));
-        kf.processNoiseCov.at<float>(0) = 1e-2;
-        kf.processNoiseCov.at<float>(7) = 1e-2;
-        kf.processNoiseCov.at<float>(14) = 5.0f;
-        kf.processNoiseCov.at<float>(21) = 5.0f;
-        kf.processNoiseCov.at<float>(28) = 1e-2;
-        kf.processNoiseCov.at<float>(35) = 1e-2;
-        // Measures Noise Covariance Matrix R
-        cv::setIdentity(kf.measurementNoiseCov, cv::Scalar(1e-1));
-        // <<<< Kalman Filter
+    while (ch != 'q' && ch != 'Q')
+    {
 
         double precTick = ticks;
         ticks = (double) cv::getTickCount();
@@ -134,10 +155,8 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
         double dT = (ticks - precTick) / cv::getTickFrequency(); //seconds
 
         // Get the msg image
-        cv::Mat res;
-	cv::Mat frame;
-        frame = cv_bridge::toCvShare(msg, "bgr8")->image;
-	frame.copyTo( res );
+        cap >> frame;        
+        frame.copyTo( res );
 
         if (found)
         {
@@ -200,7 +219,7 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
         // <<<<< Improving the result
 
         // Thresholding viewing
-        cv::imshow("Threshold", rangeRes);
+        //cv::imshow("Threshold", rangeRes);
 
         // >>>>> Contours detection
         vector<vector<cv::Point> > contours;
@@ -311,7 +330,7 @@ BallCount = 0;
 
 
 	    FoundCount++;
-	    if(FoundCount >= 15)
+	    if(FoundCount >= 30)
 	    {
         	// Image center
         	ImageX = res.cols / 2.0f;
@@ -334,14 +353,11 @@ BallCount = 0;
         // <<<<< Kalman Update
 
         // Final result
-        cv::imshow("Tracking", res);
-
+        //cv::imshow("Tracking", res);
+	image_msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", res).toImageMsg();
+	pub.publish(image_msg);
         // User key
-        ch = cv::waitKey(5);
-    }
-    catch (cv_bridge::Exception& e)
-    {
-        ROS_ERROR("Could not convert from '%s' to 'bgr8'.", msg->encoding.c_str());
+        ch = cv::waitKey(35);
     }
 }
 

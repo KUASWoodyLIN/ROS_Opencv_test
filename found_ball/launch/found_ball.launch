@@ -1,13 +1,8 @@
 <launch>
-  <arg name="environment" default="false" doc="If using erle_copter choose true else false"/>
+  <arg name="shutdown" value="true" doc="shutdown"/>
   <arg name="ball_color" value="blue" doc="Choose blue,orange or red"/>
   <arg name="image" value="/erlecopter/bottom/image_raw" doc="The image topic. Should be remapped to the name of the real image topic."/>
 
-
-  <!-- image_publisher.cpp -->
-  <group if="$(arg environment)">
-    <node name="image_publisher" pkg="found_ball" type="image_publisher" output="screen" />
-  </group>
 
   <!-- ball_tracking.cpp -->
   <node name="ball_tracking" pkg="found_ball" type="ball_tracking" output="screen" >
