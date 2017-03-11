@@ -52,6 +52,7 @@ string ball_color ; //= "red"
 char ch = 0;
 double ticks = 0;
 bool found = false;
+bool first_setup = true;
 int notFoundCount = 0 , FoundCount = 0 , BallCount = 0;
 
 int main(int argc, char **argv)
@@ -65,7 +66,7 @@ int main(int argc, char **argv)
     // Publishe
     image_transport::Publisher pub = it.advertise("ball_tracking/image", 1);
 
-    //Service
+    // Subscribe
     Distance_pub = nh.advertise<found_ball::Ballinfo>("/ball/info",1);
 
     //Get param
@@ -284,7 +285,7 @@ BallCount = 0;
         {
             notFoundCount++;
             cout << "notFoundCount:" << notFoundCount << endl;
-	    if( notFoundCount == 30 )
+	    if( notFoundCount == 30 && first_setup == false )
             {
 	    	distance_msg.ball_state = false ;
         	Distance_pub.publish(distance_msg);
@@ -335,8 +336,11 @@ BallCount = 0;
 
 
 	    FoundCount++;
-	    if(FoundCount >= 30)
+	    if(FoundCount >= 15)
 	    {
+		// when first time found ball turn to false
+		first_setup = false;
+
         	// Image center
         	ImageX = res.cols / 2.0f;
         	ImageY = res.rows / 2.0f;

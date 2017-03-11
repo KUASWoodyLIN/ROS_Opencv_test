@@ -117,6 +117,9 @@ int main(int argc, char **argv)
         ROS_ERROR("Failed Takeoff");
     }
 
+    while( altitude <  )
+    {}
+
     // set AUTO MODE
     srv_setMode.request.base_mode = 0;
     srv_setMode.request.custom_mode = "AUTO";
