@@ -287,7 +287,10 @@ BallCount = 0;
             cout << "notFoundCount:" << notFoundCount << endl;
 	    if( notFoundCount == 30 && first_setup == false )
             {
+		// Found ball false
 	    	distance_msg.ball_state = false ;
+
+		// Publish message
         	Distance_pub.publish(distance_msg);
 	    }
 
@@ -354,6 +357,7 @@ BallCount = 0;
             	distance_msg.y = ImageY - BallY;
 		distance_msg.ball_state = true ;
 
+		// Publish message
         	Distance_pub.publish(distance_msg);
 		FoundCount = 0;
                 cout << "Measure matrix:" << endl << meas << endl;

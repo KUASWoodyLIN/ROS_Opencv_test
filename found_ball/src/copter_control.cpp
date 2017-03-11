@@ -136,6 +136,8 @@ int main(int argc, char **argv)
 
 void imagedistance(const found_ball::BallinfoConstPtr &msg)
 {
+    ROS_INOF( Get the message from tracker );
+
     // Get message
     ErX = msg->x;
     ErY = msg->y;
