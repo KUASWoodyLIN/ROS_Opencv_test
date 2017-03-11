@@ -117,8 +117,10 @@ int main(int argc, char **argv)
         ROS_ERROR("Failed Takeoff");
     }
 
-    while( altitude <  )
-    {}
+    while( altitude < 5 ){
+	sleep(1);
+	ROS_ERROR("Altitude = %f" , altitude)
+    }
 
     // set AUTO MODE
     srv_setMode.request.base_mode = 0;
@@ -136,7 +138,7 @@ int main(int argc, char **argv)
 
 void imagedistance(const found_ball::BallinfoConstPtr &msg)
 {
-    ROS_INOF( Get the message from tracker );
+    ROS_INOF( "Get the message from tracker" );
 
     // Get message
     ErX = msg->x;
