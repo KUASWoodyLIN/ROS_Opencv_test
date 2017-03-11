@@ -61,8 +61,13 @@ int main(int argc, char **argv)
     ros::NodeHandle nh;
     ros::NodeHandle privateHandle("~");
     image_transport::ImageTransport it(nh);
+
+    // Publishe
     image_transport::Publisher pub = it.advertise("ball_tracking/image", 1);
+
+    //Service
     Distance_pub = nh.advertise<found_ball::Ballinfo>("/ball/info",1);
+
     //Get param
     privateHandle.getParam("ball_color", ball_color );
 

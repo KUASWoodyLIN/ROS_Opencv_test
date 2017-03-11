@@ -185,7 +185,7 @@ StateCount = 0;
         // <<<<< Improving the result
 
         // Thresholding viewing
-        //cv::imshow("Threshold", rangeRes);
+        cv::imshow("Threshold", rangeRes);
 
         // >>>>> Contours detection
         vector<vector<cv::Point> > contours;
@@ -199,14 +199,14 @@ StateCount = 0;
         for (size_t i = 0; i < contours.size(); i++)
         {
             cv::Rect bBox;
-            bBox = cv::boundingRect(contours[i]);	//！！！！
+            bBox = cv::boundingRect(contours[i]);
 
             float ratio = (float) bBox.width / (float) bBox.height;
             if (ratio > 1.0f)
                 ratio = 1.0f / ratio;
 
             // Searching for a bBox almost square
-            if (ratio > 0.75 && bBox.area() >= 400)
+            if (ratio > 0.75 && bBox.area() >= 100)
             {
                 balls.push_back(contours[i]);
                 ballsBox.push_back(bBox);

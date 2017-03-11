@@ -78,6 +78,8 @@ int main(int argc, char **argv)
 
     // Publishe
     rc_pub = nh.advertise<mavros_msgs::OverrideRCIn>("/mavros/rc/override", 10);
+
+    //Service
     mode_ser = nh.serviceClient<mavros_msgs::SetMode>("/mavros/set_mode");
     arming_ser = nh.serviceClient<mavros_msgs::CommandBool>("/mavros/cmd/arming");
     takeoff_ser = nh.serviceClient<mavros_msgs::CommandTOL>("/mavros/cmd/takeoff");
@@ -139,7 +141,7 @@ void imagedistance(const found_ball::BallinfoConstPtr &msg)
     // Create SetMode msg
     mavros_msgs::SetMode srv_setMode;
 
-    // LOITER MODE
+    // Found Ball
     if ( ball_state == true )
     {
 	if( mode == "AUTO" )

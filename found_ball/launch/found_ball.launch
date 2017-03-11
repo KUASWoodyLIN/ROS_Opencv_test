@@ -1,12 +1,9 @@
 <launch>
-  <arg name="shutdown" value="true" doc="shutdown"/>
   <arg name="ball_color" value="blue" doc="Choose blue,orange or red"/>
-  <arg name="image" value="/erlecopter/bottom/image_raw" doc="The image topic. Should be remapped to the name of the real image topic."/>
 
 
   <!-- ball_tracking.cpp -->
   <node name="ball_tracking" pkg="found_ball" type="ball_tracking" output="screen" >
-    <remap from="image" to="$(arg image)" />
     <rosparam param="ball_color" subst_value="True">
       $(arg ball_color)
     </rosparam>

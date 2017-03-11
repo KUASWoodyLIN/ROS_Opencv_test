@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(found_ball)
+project(found_ball_gazebo)
 
 #set(CMAKE_PREFIX_PATH "/usr/local/lib")
 
