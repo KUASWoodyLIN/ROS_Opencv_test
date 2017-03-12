@@ -117,11 +117,13 @@ int main(int argc, char **argv)
         ROS_ERROR("Failed Takeoff");
     }
 
-    while( altitude < 5 ){
+    while( altitude < 500 ){
 	sleep(1);
-	ROS_ERROR("Altitude = %f" , altitude)
+	ROS_ERROR("Altitude = %f" , altitude);
+	ros::spinOnce();
     }
-
+    ROS_ERROR("Altitude = %f" , altitude);
+	
     // set AUTO MODE
     srv_setMode.request.base_mode = 0;
     srv_setMode.request.custom_mode = "AUTO";
@@ -138,8 +140,6 @@ int main(int argc, char **argv)
 
 void imagedistance(const found_ball::BallinfoConstPtr &msg)
 {
-    ROS_INOF( "Get the message from tracker" );
-
     // Get message
     ErX = msg->x;
     ErY = msg->y;
@@ -165,17 +165,11 @@ void imagedistance(const found_ball::BallinfoConstPtr &msg)
        	    	ROS_ERROR("Failed SetMode");
     	    }
 	}
+	    
         // Calculate Roll and Pitch depending on the mode
-        if (mode == "LOITER")
-	{
-            Roll = BASERC - ErX * FACTOR;
-            Pitch = BASERC - ErY * FACTOR;
-        }
-	else
-	{
-            Roll = BASERC;
-            Pitch = BASERC;
-        }  
+        Roll = BASERC - ErX * FACTOR;
+        Pitch = BASERC - ErY * FACTOR;
+
         // Limit the Roll
         if (Roll > MAXRC)
         {
