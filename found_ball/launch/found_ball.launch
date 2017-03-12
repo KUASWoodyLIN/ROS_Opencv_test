@@ -12,4 +12,7 @@
   <!-- copter_control.cpp -->
   <node name="copter_control" pkg="found_ball" type="copter_control" output="screen" />
 
+  <!-- web_video_server.cpp -->
+  <node name="web_video_server" pkg="web_video_server" type="web_video_server" output="screen" />
+
 </launch>
