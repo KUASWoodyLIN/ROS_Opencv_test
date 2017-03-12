@@ -189,6 +189,7 @@ void imagedistance(const found_ball::BallinfoConstPtr &msg)
         {
             Pitch = MINRC;
         }
+
         // Create RC msg
         mavros_msgs::OverrideRCIn rc_msg;
         rc_msg.channels[0] = Roll;     //Roll
