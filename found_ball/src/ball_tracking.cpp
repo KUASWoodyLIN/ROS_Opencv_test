@@ -64,7 +64,7 @@ int main(int argc, char **argv)
     image_transport::ImageTransport it(nh);
 
     // Publishe
-    image_transport::Publisher pub = it.advertise("ball_tracking/image", 1);
+    pub = it.advertise("ball_tracking/image", 1);
 
     // Subscribe
     Distance_pub = nh.advertise<found_ball::Ballinfo>("/ball/info",1);
@@ -245,8 +245,8 @@ void ball_tracking(void)
             if (ratio > 1.0f)
                 ratio = 1.0f / ratio;
 
-            // Searching for a bBox almost square
-            if (ratio > 0.75 && bBox.area() >= 400)
+            // Searching for a bBox almost square and size
+            if (ratio > 0.75 && bBox.area() >= 80)
             {
                 balls.push_back(contours[i]);
                 ballsBox.push_back(bBox);
