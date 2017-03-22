@@ -123,7 +123,7 @@ int main(int argc, char **argv)
 	ros::spinOnce();
     }
     ROS_ERROR("Altitude = %f" , altitude);
-	
+
     // set AUTO MODE
     srv_setMode.request.base_mode = 0;
     srv_setMode.request.custom_mode = "AUTO";
@@ -165,7 +165,7 @@ void imagedistance(const found_ball::BallinfoConstPtr &msg)
        	    	ROS_ERROR("Failed SetMode");
     	    }
 	}
-	    
+
         // Calculate Roll and Pitch depending on the mode
         Roll = BASERC - ErX * FACTOR;
         Pitch = BASERC - ErY * FACTOR;
@@ -174,7 +174,7 @@ void imagedistance(const found_ball::BallinfoConstPtr &msg)
         if (Roll > MAXRC)
         {
             Roll = MAXRC;
-        } 
+        }
 	else if (Roll < MINRC)
         {
             Roll = MINRC;
@@ -184,7 +184,7 @@ void imagedistance(const found_ball::BallinfoConstPtr &msg)
         if (Pitch > MAXRC)
         {
             Pitch = MAXRC;
-        } 
+        }
 	else if (Pitch < MINRC)
         {
             Pitch = MINRC;
