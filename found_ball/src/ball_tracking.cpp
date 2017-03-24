@@ -145,6 +145,12 @@ void ball_tracking(void)
     }
     // <<<<< Camera Settings
 
+    // >>>>> Save Video Settings
+    cv::Size videoSize = cv::Size((int)cap.get(CV_CAP_PROP_FRAME_WIDTH),(int)cap.get(CV_CAP_PROP_FRAME_HEIGHT));
+    cv::VideoWriter writer;
+    writer.open("VideoTest.avi", CV_FOURCC('M', 'J', 'P', 'G'), 30, videoSize);
+    // <<<<< Save Video Settings
+
     // Camera frame
     cv::Mat frame;
     cv::Mat res;
@@ -368,7 +374,13 @@ BallCount = 0;
         // Final result
         //cv::imshow("Tracking", res);
 	image_msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", res).toImageMsg();
+
+	//Publish camera to web server
 	pub.publish(image_msg);
+
+	//Save Video
+        writer.write(frame);
+
         // User key
         ch = cv::waitKey(35);
     }

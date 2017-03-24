@@ -26,7 +26,7 @@ int main()
         if(!frame.empty()){
             writer.write(frame);	//++
             imshow("show image", frame);
-            if(waitKey(33) == 27){ 
+            if(waitKey(33) == 'q'){ 
                 break;
             }
         }
