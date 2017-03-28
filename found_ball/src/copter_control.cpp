@@ -55,6 +55,12 @@ ros::ServiceClient takeoff_ser;
 // Time control
 ros::Time lastTime;
 
+// mavros msgs
+mavros_msgs::CommandTOL srv_takeoff;	// takeoff
+mavros_msgs::CommandBool srv;		// arm throttle
+mavros_msgs::SetMode srv_setMode;	// set MODE
+mavros_msgs::OverrideRCIn rc_msg;	// rc override
+
 //Throttle direction
 double Roll, Pitch;
 
@@ -94,7 +100,6 @@ int main(int argc, char **argv)
     takeoff_ser = nh.serviceClient<mavros_msgs::CommandTOL>("/mavros/cmd/takeoff");
 
     // set GUIDED MODE
-    mavros_msgs::SetMode srv_setMode;
     srv_setMode.request.base_mode = 0;
     srv_setMode.request.custom_mode = "GUIDED";
     if(mode_ser.call(srv_setMode)){
@@ -105,7 +110,6 @@ int main(int argc, char **argv)
     }
 
     // arm throttle
-    mavros_msgs::CommandBool srv;
     srv.request.value = true;
     if(arming_ser.call(srv)){
         ROS_ERROR("ARM send ok %d", srv.response.success);
@@ -114,7 +118,6 @@ int main(int argc, char **argv)
     }
 
     // takeoff
-    mavros_msgs::CommandTOL srv_takeoff;
     srv_takeoff.request.altitude = 5;
     srv_takeoff.request.latitude = 0;
     srv_takeoff.request.longitude = 0;
@@ -143,6 +146,8 @@ int main(int argc, char **argv)
         //return -1;
     }
 
+    signal(SIGINT,showtime);
+
     ros::spin();
 
 }
@@ -153,9 +158,6 @@ void imagedistance(const found_ball::BallinfoConstPtr &msg)
     ErX = msg->x;
     ErY = msg->y;
     ball_state = msg->ball_state;
-
-    // Create SetMode msg
-    mavros_msgs::SetMode srv_setMode;
 
     // Found Ball
     if ( ball_state == true )
@@ -199,8 +201,6 @@ void imagedistance(const found_ball::BallinfoConstPtr &msg)
             Pitch = MINRC;
         }
 
-        // Create RC msg
-        mavros_msgs::OverrideRCIn rc_msg;
         rc_msg.channels[0] = Roll;     //Roll
         rc_msg.channels[1] = Pitch;    //Pitch
         rc_msg.channels[2] = BASERC;   //Throttle
@@ -249,4 +249,22 @@ void mavrosglobal(const sensor_msgs::NavSatFixConstPtr &msg)
 void mavrosrelalti(const std_msgs::Float64ConstPtr &msg)
 {
     Rel_altitude = msg->data;
+}
+
+void showtime (int sig)
+{
+        cout<<"Hello World"<<endl;
+
+        rc_msg.channels[0] = 0; //Roll
+        rc_msg.channels[1] = 0; //Pitch
+        rc_msg.channels[2] = 0; //Throttle
+        rc_msg.channels[3] = 0; //Yaw
+        rc_msg.channels[4] = 0;
+        rc_msg.channels[5] = 0;
+        rc_msg.channels[6] = 0;
+        rc_msg.channels[7] = 0;
+
+        rc_pub.publish(rc_msg);
+
+        ros::shutdown();
 }

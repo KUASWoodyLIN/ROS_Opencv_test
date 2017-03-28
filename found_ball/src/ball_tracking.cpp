@@ -345,7 +345,7 @@ BallCount = 0;
 
 
 	    FoundCount++;
-	    if(FoundCount >= 15)
+	    if(FoundCount >= 5)
 	    {
 		// when first time found ball turn to false
 		first_setup = false;
@@ -382,7 +382,7 @@ BallCount = 0;
         writer.write(frame);
 
         // User key
-        ch = cv::waitKey(35);
+        ch = cv::waitKey(20);
     }
 }
 
