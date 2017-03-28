@@ -1,4 +1,5 @@
 #include <ros/ros.h>
+#include <signal.h>
 
 //MAVROS
 #include <mavros_msgs/SetMode.h>
@@ -22,6 +23,7 @@ void imagedistance(const found_ball::BallinfoConstPtr &msg);
 void mavrosStateCb(const mavros_msgs::StateConstPtr &msg);
 void mavrosglobal(const sensor_msgs::NavSatFixConstPtr &msg);
 void mavrosrelalti(const std_msgs::Float64ConstPtr &msg);
+void exit_control (int sig);
 
 #define FACTOR  0.65
 #define MINRC   1100
@@ -146,7 +148,7 @@ int main(int argc, char **argv)
         //return -1;
     }
 
-    signal(SIGINT,showtime);
+    signal(SIGINT,exit_control);
 
     ros::spin();
 
@@ -251,9 +253,9 @@ void mavrosrelalti(const std_msgs::Float64ConstPtr &msg)
     Rel_altitude = msg->data;
 }
 
-void showtime (int sig)
+void exit_control (int sig)
 {
-        cout<<"Hello World"<<endl;
+        cout<<"exit_control"<<endl;
 
         rc_msg.channels[0] = 0; //Roll
         rc_msg.channels[1] = 0; //Pitch

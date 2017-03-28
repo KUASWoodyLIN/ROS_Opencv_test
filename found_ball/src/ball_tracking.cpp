@@ -1,4 +1,5 @@
 #include <ros/ros.h>
+#include <signal.h>
 
 //ROS image
 #include <image_transport/image_transport.h>
@@ -22,7 +23,8 @@
 using namespace std;
 
 //函數聲明
-void ball_tracking(void);
+void ball_tracking (void);
+void exit_tracking (int sig);
 
 // >>>>> Color to be tracked
 #define MIN_H_BLUE 200	//200
@@ -71,6 +73,8 @@ int main(int argc, char **argv)
 
     //Get param
     privateHandle.getParam("ball_color", ball_color );
+
+    signal(SIGINT,exit_control);
 
     ball_tracking();
 }
@@ -386,4 +390,10 @@ BallCount = 0;
     }
 }
 
+void exit_tracking (int sig)
+{
+        cout<<"exit_tracking"<<endl;
+	ch = 'q';
+        ros::shutdown();
+}
 
