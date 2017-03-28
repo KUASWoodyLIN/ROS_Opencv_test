@@ -7,6 +7,7 @@
 #include <mavros_msgs/CommandBool.h>
 #include <mavros_msgs/CommandTOL.h>
 #include <sensor_msgs/NavSatFix.h>
+#include <std_msgs/Float64.h>
 
 //found_ball
 #include "found_ball/Ballinfo.h"
@@ -20,11 +21,15 @@ using namespace std;
 void imagedistance(const found_ball::BallinfoConstPtr &msg);
 void mavrosStateCb(const mavros_msgs::StateConstPtr &msg);
 void mavrosglobal(const sensor_msgs::NavSatFixConstPtr &msg);
+void mavrosrelalti(const std_msgs::Float64ConstPtr &msg);
 
 #define FACTOR  0.65
 #define MINRC   1100
 #define BASERC  1500
 #define MAXRC   1900
+
+// Subscriber Relative Altitude
+ros::Subscriber mavros_Altitude;
 
 // Subscriber to global
 ros::Subscriber mavros_global_sub;
@@ -56,6 +61,9 @@ double Roll, Pitch;
 //Global position message
 float latitude = 0 ,longitude = 0 ,altitude = 0 ;
 
+//Relative Altitude
+float Rel_altitude = 0;
+
 //image info message
 float ErX = 0.0 , ErY = 0.0;
 bool ball_state = false ;
@@ -75,6 +83,7 @@ int main(int argc, char **argv)
     Distance_sub = nh.subscribe("/ball/info", 1, imagedistance);
     mavros_state_sub = nh.subscribe("/mavros/state", 1, mavrosStateCb);
     mavros_global_sub = nh.subscribe("/mavros/global_position/global", 1, mavrosglobal);
+    mavros_Altitude = nh.subscribe("/mavros/global_position/rel_alt", 1, mavrosrelalti);
 
     // Publishe
     rc_pub = nh.advertise<mavros_msgs::OverrideRCIn>("/mavros/rc/override", 10);
@@ -117,12 +126,12 @@ int main(int argc, char **argv)
         ROS_ERROR("Failed Takeoff");
     }
 
-    while( altitude < 500 ){
+    while( Rel_altitude < 5 ){
 	sleep(1);
-	ROS_ERROR("Altitude = %f" , altitude);
+	ROS_ERROR("Altitude = %f" , Rel_altitude);
 	ros::spinOnce();
     }
-    ROS_ERROR("Altitude = %f" , altitude);
+    ROS_ERROR("Altitude = %f" , Rel_altitude);
 
     // set AUTO MODE
     srv_setMode.request.base_mode = 0;
@@ -235,4 +244,9 @@ void mavrosglobal(const sensor_msgs::NavSatFixConstPtr &msg)
     latitude = msg->latitude;
     altitude = msg->altitude;
     //ROS_INFO("Heard lobal: [%f] [%f] [%f]", longitude, latitude, altitude);
+}
+
+void mavrosrelalti(const std_msgs::Float64ConstPtr &msg)
+{
+    Rel_altitude = msg->data;
 }

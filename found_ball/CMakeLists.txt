@@ -50,6 +50,15 @@ add_executable(ball_tracking
 target_link_libraries(ball_tracking ${catkin_LIBRARIES} ${OpenCV_LIBS} ${OpenCV_LIBRARIES})
 add_dependencies(ball_tracking ball_tracking)
 
+
+### Build ball_tracking ###
+add_executable(ball_tracking_nwebcam
+  src/ball_tracking_nwebcam.cpp
+)
+target_link_libraries(ball_tracking_nwebcam ${catkin_LIBRARIES} ${OpenCV_LIBS} ${OpenCV$
+add_dependencies(ball_tracking_nwebcam ball_tracking_nwebcam)
+
+
 ### Build copter_control ###
 add_executable(copter_control
   src/copter_control.cpp
