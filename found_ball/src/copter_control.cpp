@@ -214,9 +214,30 @@ void imagedistance(const found_ball::BallinfoConstPtr &msg)
     	srv_setMode.request.custom_mode = "AUTO";
     	if(mode_ser.call(srv_setMode)){
             ROS_ERROR("setmode send ok %d value:", srv_setMode.response.success);
+	    rc_msg.channels[0] = 0; //Roll
+            rc_msg.channels[1] = 0; //Pitch
+            rc_msg.channels[2] = 0; //Throttle
+            rc_msg.channels[3] = 0; //Yaw
+            rc_msg.channels[4] = 0;
+            rc_msg.channels[5] = 0;
+            rc_msg.channels[6] = 0;
+            rc_msg.channels[7] = 0;
+            rc_pub.publish(rc_msg);
     	}else{
        	    ROS_ERROR("Failed SetMode");
     	}
+    }
+    else if ( mode == "RTL"  || mode == "STABILIZE" || mode == "LAND" )
+    {
+	    rc_msg.channels[0] = 0; //Roll
+            rc_msg.channels[1] = 0; //Pitch
+            rc_msg.channels[2] = 0; //Throttle
+            rc_msg.channels[3] = 0; //Yaw
+            rc_msg.channels[4] = 0;
+            rc_msg.channels[5] = 0;
+            rc_msg.channels[6] = 0;
+            rc_msg.channels[7] = 0;
+            rc_pub.publish(rc_msg);
     }
 }
 
