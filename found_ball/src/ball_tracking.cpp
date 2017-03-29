@@ -74,7 +74,7 @@ int main(int argc, char **argv)
     //Get param
     privateHandle.getParam("ball_color", ball_color );
 
-    signal(SIGINT,exit_control);
+    signal(SIGINT,exit_tracking);
 
     ball_tracking();
 }

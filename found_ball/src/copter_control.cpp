@@ -30,29 +30,19 @@ void exit_control (int sig);
 #define BASERC  1500
 #define MAXRC   1900
 
-// Subscriber Relative Altitude
-ros::Subscriber mavros_Altitude;
-
-// Subscriber to global
-ros::Subscriber mavros_global_sub;
-
-// Subscriber to flight mode
-ros::Subscriber mavros_state_sub;
-
-// Subscriber image distance
-ros::Subscriber Distance_sub;
+//Subscriber
+ros::Subscriber mavros_Altitude;	// Relative Altitude
+ros::Subscriber mavros_global_sub;	// Global
+ros::Subscriber mavros_state_sub;	// flight mode
+ros::Subscriber Distance_sub;		// image distance
 
 // RC publisher
 ros::Publisher rc_pub;
 
-//MODE Service
-ros::ServiceClient mode_ser;
-
-//arm throttle
-ros::ServiceClient arming_ser;
-
-//takeoff
-ros::ServiceClient takeoff_ser;
+// ServiceClient
+ros::ServiceClient mode_ser;	//MODE Service
+ros::ServiceClient arming_ser;	//arm throttle
+ros::ServiceClient takeoff_ser;	//takeoff
 
 // Time control
 ros::Time lastTime;
