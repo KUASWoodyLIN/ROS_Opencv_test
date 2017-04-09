@@ -16,3 +16,19 @@ Detection people face.
 
 ## peopledetect
 Detection people.
+
+#found ball(Gazebo and Erle_copter version)
+Inside include the (Web video sever, Copter control system and Video detection system)
+
+##Web video sever
+```bash
+git clone https://github.com/RobotWebTools/web_video_server
+```
+##Copter control system
+```bash
+found_ball/src/copture_control.cpp
+```
+##Video detection system
+```bash
+found_ball/src/ball_tracking.cpp
+```
